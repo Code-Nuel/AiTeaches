@@ -40,6 +40,19 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+function startServer(port) {
+    const server = app.listen(port, () => {
+        console.log(`Server is running on http://localhost:${server.address().port}`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.log(`Port ${port} is already in use. Trying another port...`);
+            startServer(0); // 0 means to use a random available port
+        } else {
+            console.error(err);
+        }
+    });
+}
+
+startServer(PORT);
